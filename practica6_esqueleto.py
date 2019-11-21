@@ -150,8 +150,8 @@ def update_positions(self):
         if mod_accum > self.temp:
             c = self.temp/mod_accum
             self.accum[v] = (self.accum[v][0]*c,self.accum[v][1]*c)
-        px = min(max(self.posiciones[v][0] + self.accum[v][0],0),self.size[0])
-        py = min(max(self.posiciones[v][1] + self.accum[v][1],0),self.size[1])
+        px = self.posiciones[v][0] + self.accum[v][0]
+        py = self.posiciones[v][1] + self.accum[v][1]
         self.posiciones[v] = (px,py)
         if self.verbose:
             print("Posición de " + v + ": " + str(self.posiciones[v]))
