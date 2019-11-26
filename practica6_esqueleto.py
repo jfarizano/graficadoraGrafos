@@ -11,7 +11,7 @@ import math
 
 class LayoutGraph:
 
-    def __init__(self, grafo, iters, refresh, c1, c2, temp, verbose=False):
+    def __init__(self, grafo, iters, refresh, c1, c2, c3, temp, verbose=False):
         '''
         Parametros de layout:
         iters: cantidad de iteraciones a realizar
@@ -19,6 +19,7 @@ class LayoutGraph:
         0 -> se grafica solo al final.
         c1: constante usada para calcular la repulsion entre nodos
         c2: constante usada para calcular la atraccion de aristas
+        c3: constante usada para variar la temperatura entre iteraciones
         '''
 
         # Guardo el grafo
@@ -33,9 +34,10 @@ class LayoutGraph:
         self.refresh = refresh
         self.c1 = c1
         self.c2 = c2
+        self.c3 = c3
         self.temp = temp
         self.verbose = verbose
-        self.gravity = 0.002
+        self.gravity = 0.02
 
         # Tamaño del gráfico
         self.size = (1000, 1000)
@@ -64,7 +66,7 @@ class LayoutGraph:
             if self.refresh !=0 and i % self.refresh == 0:
                 refrescar(self)
                 plt.draw()
-                plt.pause(0.0001)
+                plt.pause(0.00001)
                 plt.clf()
             if i == self.iters - 1:
                 refrescar(self)
@@ -157,7 +159,7 @@ def update_positions(self):
             print("Posición de " + v + ": " + str(self.posiciones[v]))
 
 def update_temperature(self):
-    self.temp = 0.95 * self.temp
+    self.temp = self.c3 * self.temp
     if self.verbose:
         print("Temperatura: " + str(self.temp))
 
@@ -182,18 +184,35 @@ def main():
     # Definimos los argumentos de linea de comando que aceptamos
     parser = argparse.ArgumentParser()
 
-    # Verbosidad, opcional, False por defecto
+    # Archivo del cual leer el grafo
     parser.add_argument(
-        '-v', '--verbose',
-        action='store_true',
-        help='Muestra mas informacion al correr el programa'
-    )
+        'file_name',
+        help='Archivo del cual leer el grafo a dibujar'
+    )    
     # Cantidad de iteraciones, opcional, 50 por defecto
     parser.add_argument(
         '--iters',
         type=int,
         help='Cantidad de iteraciones a efectuar',
         default=50
+    )
+    parser.add_argument(
+        '--c1',
+        type=float,
+        help='Afecta la fuerza de atracción',
+        default=0.1
+    )
+    parser.add_argument(
+        '--c2',
+        type=float,
+        help='Afecta la fuerza de repulsión',
+        default=5
+    )
+    parser.add_argument(
+        '--c3',
+        type=float,
+        help='Variación de temperatura por cada iteración',
+        default=0.95
     )
     # Cada cuantas iteraciones se refresca el gráfico, opcional, 0 por defecto
     parser.add_argument(
@@ -209,10 +228,11 @@ def main():
         help='Temperatura inicial',
         default=100.0
     )
-    # Archivo del cual leer el grafo
+    # Verbosidad, opcional, False por defecto
     parser.add_argument(
-        'file_name',
-        help='Archivo del cual leer el grafo a dibujar'
+        '-v', '--verbose',
+        action='store_true',
+        help='Muestra mas informacion al correr el programa'
     )
 
     args = parser.parse_args()
@@ -222,8 +242,9 @@ def main():
         grafo=lee_grafo_archivo(args.file_name),
         iters=args.iters,
         refresh=args.refresh,
-        c1=0.1,
-        c2=5,
+        c1=args.c1,
+        c2=args.c2,
+        c3=args.c3,
         temp=args.temp,
         verbose=args.verbose
         )
